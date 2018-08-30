@@ -1,0 +1,174 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font: 16px/1.5 "Segoe UI", "Open Sans", sans-serif;
+    background: #32373a;
+    color: #ddd;
+}
+
+#container {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+h1, h2, h3 {
+    font: 30px "Montserrat";
+    font-weight: normal;
+    letter-spacing: 1px;
+
+}
+
+.col {
+    flex-grow: 1;
+    padding: 30px;
+    min-width: 300px;
+}
+
+.team {
+    background: #2d3134;
+    color: #ddd;
+    min-width: 30vw;
+}
+
+.header {
+    background: #262a2d;
+    border-radius: 3px;
+    padding: 5px;
+}
+
+.team-header, #question-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    border-bottom: 5px solid #4c5559;
+}
+#team-a .team-header { border-color: #6a4aeb; }
+#team-b .team-header { border-color: #2b8fd0; }
+.team-header h1, #question-header h1 {
+    display: inline-block;
+    padding: 5px 20px;
+}
+.team-a-winning #team-a .points { color: #6a4aeb; }
+.team-b-winning #team-b .points { color: #2b8fd0; }
+
+.members-container, .questions-container {
+    margin: 30px 0;
+}
+
+.members-header, .questions-header {
+    padding: 6px;
+}
+.header svg {
+    display: inline;
+    fill: #777;
+    height: 24px;
+    margin: 0 10px;
+    vertical-align: text-bottom;
+}
+#team-a .header svg.highlighted { fill: #6a4aeb; }
+#team-b .header svg.highlighted { fill: #2b8fd0; }
+.header h2 {
+    display: inline;
+    font-size: 24px;
+}
+.questions-header h2 {
+    font-size: 22px;
+}
+.questions-header h2 span {
+    font-size: 24px;
+}
+.members, .questions {
+    background: #373e42;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    padding: 5px;
+}
+.members span, .questions span {
+    white-space: nowrap;
+    background: #2d3134;
+    padding: 1px 4px;
+    border-radius: 2px;
+    display: inline-block;
+    margin: 2px;
+    transition: 0.2s ease-out;
+    cursor: default;
+}
+.header .collapse-icon-container {
+    float: right;
+}
+#team-a .members span:hover { background: #6a4aeb; }
+#team-b .members span:hover { background: #2b8fd0; }
+
+.middle {
+    background: #32373a;
+}
+
+button {
+    outline: 0;
+    border: 0;
+    background: #eee;
+    font: inherit;
+}
+
+#judging {
+    display: flex;
+    justify-content: space-between;
+}
+
+#judging button {
+    border-radius: 4px;
+    padding: 20px;
+    width: 50%;
+}
+#correct-button {
+    background: #20c05c;
+    margin-right: 20px;
+}
+#incorrect-button {
+    background: #ed4949;
+}
+
+.instructions {
+    font: 22px/1.7 "Open Sans";
+    background: #262a2d;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 3px;
+}
+
+#timer {
+    display: none;
+}
+#timer svg text {
+    font: 30px sans-serif;
+    text-anchor: middle;
+    alignment-baseline: middle;
+}
+#timer svg circle.moving {
+    animation: none;
+}
+#timer svg circle.moving.start-tossup {
+    animation: timerAnimation 5s linear;
+}
+#timer svg circle.moving.start-bonus {
+    animation: timerAnimation 20s linear;
+}
+
+@keyframes timerAnimation {
+    from {
+        stroke-dashoffset: 0px;
+    }
+    to {
+        stroke-dashoffset: 339.292px;
+    }
+}

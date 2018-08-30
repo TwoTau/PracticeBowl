@@ -1,0 +1,26 @@
+{
+  "name": "practice-bowl",
+  "version": "1.0.0",
+  "description": "An Electron app and server for a practice National Science Bowl round",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/TwoTau/PracticeBowl",
+  "keywords": [
+    "electron",
+    "science",
+    "bowl"
+  ],
+  "author": "Vishal Devireddy",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "2.0.8"
+  },
+  "dependencies": {
+    "electron-reload": "^1.2.5",
+    "express": "^4.16.3",
+    "jquery": "^3.3.1",
+    "socket.io": "^2.1.1"
+  }
+}

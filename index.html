@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="style.css" rel="stylesheet">
+	<title>Practice Science Bowl</title>
+</head>
+<body>
+
+	<div id="container">
+		<div class="col team" id="team-a">
+			<div class="header team-header">
+				<h1 class="team-title">Team A</h1>
+				<h1 class="points">0</h1>
+			</div>
+			<div class="members-container">
+				<div class="header members-header">
+					<svg class="highlighted" xmlns="http://www.w3.org/2000/svg" height="40" viewBox="0 0 12 16"><path fill-rule="evenodd" d="M12 14.002a.998.998 0 0 1-.998.998H1.001A1 1 0 0 1 0 13.999V13c0-2.633 4-4 4-4s.229-.409 0-1c-.841-.62-.944-1.59-1-4 .173-2.413 1.867-3 3-3s2.827.586 3 3c-.056 2.41-.159 3.38-1 4-.229.59 0 1 0 1s4 1.367 4 4v1.002z"/></svg>
+					<h2>0 members</h2>
+					<span class="collapse-icon-container">
+						<svg class="down" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="10" height="16" viewBox="0 0 10 16"><path fill-rule="evenodd" d="M5 11L0 6l1.5-1.5L5 8.25 8.5 4.5 10 6l-5 5z"/></svg>
+						<svg class="up" xmlns="http://www.w3.org/2000/svg" width="10" height="16" viewBox="0 0 10 16"><path fill-rule="evenodd" d="M10 10l-1.5 1.5L5 7.75 1.5 11.5 0 10l5-5 5 5z"/></svg>
+					</span>
+				</div>
+				<div class="members"></div>
+			</div>
+			<div class="questions-container">
+				<div class="header questions-header">
+					<svg class="highlighted" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15.41 9H7.59C7 9 7 8.59 7 8c0-.59 0-1 .59-1h7.81c.59 0 .59.41.59 1 0 .59 0 1-.59 1h.01zM9.59 4C9 4 9 3.59 9 3c0-.59 0-1 .59-1h5.81c.59 0 .59.41.59 1 0 .59 0 1-.59 1H9.59zM0 3.91l1.41-1.3L3 4.2 7.09 0 8.5 1.41 3 6.91l-3-3zM7.59 12h7.81c.59 0 .59.41.59 1 0 .59 0 1-.59 1H7.59C7 14 7 13.59 7 13c0-.59 0-1 .59-1z"/></svg>
+					<h2><span>12</span> questions</h2>
+					<span class="collapse-icon-container">
+						<svg class="down" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="10" height="16" viewBox="0 0 10 16"><path fill-rule="evenodd" d="M5 11L0 6l1.5-1.5L5 8.25 8.5 4.5 10 6l-5 5z"/></svg>
+						<svg class="up" xmlns="http://www.w3.org/2000/svg" width="10" height="16" viewBox="0 0 10 16"><path fill-rule="evenodd" d="M10 10l-1.5 1.5L5 7.75 1.5 11.5 0 10l5-5 5 5z"/></svg>
+					</span>
+				</div>
+				<div class="questions"></div>
+			</div>
+		</div>
+
+		<div class="col middle">
+			<div id="question-header" class="header">
+				<h1 id="current-question">Q 0</h1>
+				<h1 id="current-question-category">Chem</h1>
+			</div>
+			<h3 class="instructions"></h3>
+
+			<div id="timer">
+				<svg width="120" height="120" viewBox="0 0 120 120">
+					<circle cx="60" cy="60" r="54" fill="none" stroke="#444" stroke-width="12" />
+					<circle class="moving" cx="60" cy="60" r="54" fill="none" stroke="#fed42a" stroke-width="12"
+	        stroke-dasharray="339.292" stroke-dashoffset="339.292" stroke-linecap="round" />
+					<text x="60" y="60" fill="#fed42a">0.0</text>
+				</svg>
+			</div>
+
+			<div id="judging">
+				<button id="correct-button">
+					<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M13.991 13.991c-.05.69-1.269 1-1.998 1H5.666l-1.668-1V7.995c1.359 0 2.108-.75 3.128-1.879 1.229-1.359 1.139-2.558.879-4.127-.08-.5.5-1 1-1 .829 0 1.998 2.729 1.998 3.998l-.02 1.03c0 .689.33.969 1.02.969H14c.63 0 .98.36 1 .999l-1 5.996-.01.01zm0-7.995h-2.018l.02-.98C11.993 3.719 10.823 0 8.994 0c-.58 0-1.169.3-1.559.77-.36.41-.5.909-.42 1.409.25 1.479.28 2.278-.629 3.278-1 1.089-1.48 1.549-2.388 1.549h-2C.94 6.996 0 7.935 0 8.994v3.998c0 1.06.94 1.999 1.999 1.999h1.719l1.439.86c.16.089.33.139.52.139h6.325c1.13 0 2.839-.5 2.999-1.879l.979-5.946c.02-.08.02-.14.02-.2-.03-1.17-.84-1.969-1.999-1.969h-.01z"/></svg>
+					<br>
+					<span>Correct</span>
+				</button>
+				<button id="incorrect-button">
+					<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15.97 7.825L15 1.88C14.83.499 13.123 0 11.994 0H5.686c-.2 0-.38.05-.53.14L3.719 1h-1.72C.94 1 0 1.938 0 2.997v3.998c0 1.059.94 2.018 1.999 1.998h1.999c.909 0 1.389.45 2.388 1.55.91.999.88 1.798.63 3.267-.08.5.06 1 .42 1.42.39.47.979.769 1.558.769 1.83 0 2.999-3.718 2.999-5.017l-.02-.98h2.038c1.16 0 1.949-.799 1.979-1.968 0-.06.02-.13-.02-.2v-.01zm-1.969 1.19h-1.989c-.7 0-1.029.28-1.029.969l.03 1.03c0 1.268-1.17 3.997-1.999 3.997-.5 0-1.079-.5-.999-1 .25-1.579.34-2.778-.89-4.137-1.019-1.13-1.768-1.879-3.127-1.879V1.999l1.668-1h6.327c.729 0 1.948.31 1.998 1l.02.02 1 5.996c-.03.64-.38 1-1 1h-.01z"/></svg>
+					<br>
+					<span>Wrong</span>
+				</button>
+			</div>
+		</div>
+
+		<div class="col team" id="team-b">
+			<div class="header team-header">
+				<h1 class="team-title">Team B</h1>
+				<h1 class="points">0</h1>
+			</div>
+			<div class="members-container">
+				<div class="header members-header">
+					<svg class="highlighted" xmlns="http://www.w3.org/2000/svg" height="40" viewBox="0 0 12 16"><path fill-rule="evenodd" d="M12 14.002a.998.998 0 0 1-.998.998H1.001A1 1 0 0 1 0 13.999V13c0-2.633 4-4 4-4s.229-.409 0-1c-.841-.62-.944-1.59-1-4 .173-2.413 1.867-3 3-3s2.827.586 3 3c-.056 2.41-.159 3.38-1 4-.229.59 0 1 0 1s4 1.367 4 4v1.002z"/></svg>
+					<h2>0 members</h2>
+					<span class="collapse-icon-container">
+						<svg class="down" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="10" height="16" viewBox="0 0 10 16"><path fill-rule="evenodd" d="M5 11L0 6l1.5-1.5L5 8.25 8.5 4.5 10 6l-5 5z"/></svg>
+						<svg class="up" xmlns="http://www.w3.org/2000/svg" width="10" height="16" viewBox="0 0 10 16"><path fill-rule="evenodd" d="M10 10l-1.5 1.5L5 7.75 1.5 11.5 0 10l5-5 5 5z"/></svg>
+					</span>
+				</div>
+				<div class="members"></div>
+			</div>
+			<div class="questions-container">
+				<div class="header questions-header">
+					<svg class="highlighted" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15.41 9H7.59C7 9 7 8.59 7 8c0-.59 0-1 .59-1h7.81c.59 0 .59.41.59 1 0 .59 0 1-.59 1h.01zM9.59 4C9 4 9 3.59 9 3c0-.59 0-1 .59-1h5.81c.59 0 .59.41.59 1 0 .59 0 1-.59 1H9.59zM0 3.91l1.41-1.3L3 4.2 7.09 0 8.5 1.41 3 6.91l-3-3zM7.59 12h7.81c.59 0 .59.41.59 1 0 .59 0 1-.59 1H7.59C7 14 7 13.59 7 13c0-.59 0-1 .59-1z"/></svg>
+					<h2><span>12</span> questions</h2>
+					<span class="collapse-icon-container">
+						<svg class="down" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="10" height="16" viewBox="0 0 10 16"><path fill-rule="evenodd" d="M5 11L0 6l1.5-1.5L5 8.25 8.5 4.5 10 6l-5 5z"/></svg>
+						<svg class="up" xmlns="http://www.w3.org/2000/svg" width="10" height="16" viewBox="0 0 10 16"><path fill-rule="evenodd" d="M10 10l-1.5 1.5L5 7.75 1.5 11.5 0 10l5-5 5 5z"/></svg>
+					</span>
+				</div>
+				<div class="questions"></div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		require("./ui-controls.js")
+		require("./renderer.js")
+	</script>
+</body>
+</html>

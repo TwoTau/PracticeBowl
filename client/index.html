@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="theme-color" content="#4285f4">
+    <link href="client.css" rel="stylesheet">
+    <title>Practice Bowl</title>
+</head>
+<body>
+    <div id="container">
+        <div id="user">
+            <div id="username">???</div>
+            <div id="team">?</div>
+        </div>
+        <div id="score">
+            A: <span id="a-score">0</span> | B: <span id="b-score">0</span>
+        </div>
+        <div id="buzzer-container">
+            <button id="buzzer">
+                Buzzer
+            </button>
+        </div>
+    </div>
+    <div id="overlay">
+        <div id="connect-modal">
+            <h2>Connect</h2>
+			<input id="name-input" type="text" placeholder="Your name">
+            <br>
+            <input type="radio" id="team-a-input" name="team-input" value="a"><label for="team-a-input">Team A</label>
+            <input type="radio" id="team-b-input" name="team-input" value="b"><label for="team-b-input">Team B</label>
+
+			<div id="connect-button-container">
+				<button id="connect-button">Connect</button>
+			</div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js" integrity="sha384-l5mJc3Z+1vy9cW5SL9rsLY7Lj0t9oELCwHOEXCC11hCf119un/8RwSFp99rwgIyo" crossorigin="anonymous"></script>
+    <script>
+    $("#connect-button").click(() => {
+        const name = $("#name-input").val().trim();
+        const team = $("input[name='team-input']:checked").val(); // either "a" or "b"
+        if (name.length > 3 && (team === "a" || team === "b")) {
+            $("#username").text(name);
+            $("#team").text(team.toUpperCase());
+            $("#overlay").fadeOut(200);
+            $("#connect-button").off("click");
+
+            start(name, team);
+        }
+    });
+    function start(name, team) {
+        const socket = io();
+        socket.on("connect", () => {
+            console.log("Connected!");
+
+            socket.emit("new-member", {
+                "name": name,
+                "team": team
+            });
+
+            $("#buzzer").click(() => {
+                socket.emit("buzz", {
+                    "name": name,
+                    "team": team
+                });
+            });
+        });
+        socket.on("disconnect", () => {
+            console.log("Disconnected!");
+            $("button").off("click");
+        });
+    }
+    </script>
+</body>
+</html>
