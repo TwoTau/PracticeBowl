@@ -10,7 +10,7 @@ const emitter = new Emitter()
 const TIME_TO_ANSWER_TOSS_UP = 5 // 5 second timer
 const TIME_TO_ANSWER_BONUS = 20 // 20 second timer
 
-const instructionsElement = $(".instructions")
+const instructionsElement = $("#instructions")
 
 let question = 0
 let allQuestions = []
@@ -100,7 +100,7 @@ const teamB = new Team("b")
 // teamB.addCorrect(new Question(3, true))
 
 function performTossUpProcess(excludeTeamA, excludeTeamB) {
-	instructionsElement.text("Let go of the spacebar when you finish fully reading the question.")
+	instructionsElement.text("Click the STOP reading button when you are finished.")
 
 	listeningFor = "interrupt"
 
@@ -110,81 +110,77 @@ function performTossUpProcess(excludeTeamA, excludeTeamB) {
 	}
 
 	// second space listener (finish reading question)
-	$(document).on("keyup", (event) => {
-		if (event.key === " ") {
-			$(document).off("keyup")
+	$("#stop-reading-button").one("click", () => {
+		$("#stop-reading-button").hide()
 
-			// delete interrupt listener
-			emitter.removeListener("team-buzz", handleTossUpInterrupt)
+		// delete interrupt listener
+		emitter.removeListener("team-buzz", handleTossUpInterrupt)
 
-			listeningFor = "team-buzz"
+		listeningFor = "team-buzz"
 
-			// start the timer
-			let timer = new Timer($("#timer"), emitter, TIME_TO_ANSWER_TOSS_UP)
+		// start the timer
+		let timer = new Timer($("#timer"), emitter, TIME_TO_ANSWER_TOSS_UP)
 
-			// listen for normal buzzes
-			emitter.once("team-buzz", function handle(team) {
-				if (!(excludeTeamA && team.side === "a") && !(excludeTeamB && team.side === "b")) {
-					handleTossUpBuzz(team, timer)
+		// listen for normal buzzes
+		emitter.once("team-buzz", function handle(team) {
+			if (!(excludeTeamA && team.side === "a") && !(excludeTeamB && team.side === "b")) {
+				handleTossUpBuzz(team, timer)
+			}
+		})
+
+		emitter.once("time-end", () => {
+			// stop listening for buzzes
+			emitter.removeAllListeners("team-buzz")
+
+			instructionsElement.text("Time is over. Read the correct answer. When you finish, press the \"q\" key once.")
+
+			$(document).on("keydown", (event) => {
+				if (event.key === "q") {
+					$(document).off("keydown")
+
+					createTossUpListener(false, false)
 				}
 			})
-
-			emitter.once("time-end", () => {
-				// stop listening for buzzes
-				emitter.removeAllListeners("team-buzz")
-
-				instructionsElement.text("Time is over. Read the correct answer. When you finish, press the \"q\" key once.")
-
-				$(document).on("keydown", (event) => {
-					if (event.key === "q") {
-						$(document).off("keydown")
-
-						createTossUpListener(false, false)
-					}
-				})
-			})
-		}
+		})
 	})
 }
 
 function performBonusProcess(team) {
-	instructionsElement.text("Let go of the spacebar when you finish fully reading the bonus question.")
+	instructionsElement.text("Click 'stop reading' when done.")
 
 	listeningFor = "none"
 
-	// second space listener (finish reading question)
-	$(document).on("keyup", (event) => {
-		if (event.key === " ") {
-			$(document).off("keyup")
+	// (finish reading question)
+	$("#stop-reading-button").one("click", () => {
+		$("#stop-reading-button").hide()
 
-			listeningFor = "team-buzz"
+		listeningFor = "team-buzz"
 
-			// start the timer
-			let timer = new Timer($("#timer"), emitter, TIME_TO_ANSWER_BONUS)
+		// start the timer
+		let timer = new Timer($("#timer"), emitter, TIME_TO_ANSWER_BONUS)
 
-			// listen for buzzes from the bonus team
-			emitter.on("team-buzz", function handle(buzzedTeam) {
-				if (buzzedTeam === team) {
-					emitter.removeAllListeners("team-buzz")
-					handleBonusBuzz(team, timer)
+		// listen for buzzes from the bonus team
+		emitter.on("team-buzz", function handle(buzzedTeam) {
+			if (buzzedTeam === team) {
+				emitter.removeAllListeners("team-buzz")
+				handleBonusBuzz(team, timer)
+			}
+		})
+
+		emitter.once("time-end", () => {
+			// stop listening for buzzes
+			emitter.removeAllListeners("team-buzz")
+
+			instructionsElement.text("Time is over. Read the correct answer. When you finish, press the \"q\" key once.")
+
+			$(document).on("keydown", (event) => {
+				if (event.key === "q") {
+					$(document).off("keydown")
+
+					createTossUpListener(false, false)
 				}
 			})
-
-			emitter.once("time-end", () => {
-				// stop listening for buzzes
-				emitter.removeAllListeners("team-buzz")
-
-				instructionsElement.text("Time is over. Read the correct answer. When you finish, press the \"q\" key once.")
-
-				$(document).on("keydown", (event) => {
-					if (event.key === "q") {
-						$(document).off("keydown")
-
-						createTossUpListener(false, false)
-					}
-				})
-			})
-		}
+		})
 	})
 }
 
@@ -194,27 +190,38 @@ function createTossUpListener(excludeTeamA, excludeTeamB) {
 	isBonus = false
 	$("#current-question").text(`Q ${question}`)
 
-	instructionsElement.text("Press the space bar and hold down while reading the question. When you finish fully reading the question, immediately let go.")
+	instructionsElement.text("Click the 'start reading' button when you start reading the question. When you finish, click 'stop reading'.")
 
-	$(document).on("keydown", (event) => {
-		if (event.key === " ") {
-			$(document).off("keydown")
-			performTossUpProcess(excludeTeamA, excludeTeamB)
-		}
+	$("#start-reading-button").show()
+	$("#stop-reading-button").hide()
+
+	$("#start-reading-button").one("click", () => {
+		$("#start-reading-button").hide()
+		$("#stop-reading-button").show()
+		performTossUpProcess(excludeTeamA, excludeTeamB)
 	})
+
+	// $(document).on("keydown", (event) => {
+	// 	if (event.key === " ") {
+	// 		$(document).off("keydown")
+	// 		performTossUpProcess(excludeTeamA, excludeTeamB)
+	// 	}
+	// })
 }
 
 function createBonusListener(team) {
 	isBonus = true
 	$("#current-question").text(`Q ${question} B`)
 
-	instructionsElement.text("Press the space bar and hold down while reading the bonus question. When you finish fully reading the question, immediately let go.")
+	instructionsElement.text("Click or something.")
 
-	$(document).on("keydown", (event) => {
-		if (event.key === " ") {
-			$(document).off("keydown")
-			performBonusProcess(team)
-		}
+	$("#start-reading-button").show()
+	$("#stop-reading-button").hide()
+
+	$("#start-reading-button").one("click", () => {
+		$("#start-reading-button").hide()
+		$("#stop-reading-button").show()
+		performBonusProcess(team)
 	})
 }
 

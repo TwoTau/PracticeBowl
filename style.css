@@ -24,6 +24,7 @@ h1, h2, h3 {
     font: 30px "Montserrat";
     font-weight: normal;
     letter-spacing: 1px;
+    color: #c0c0c0;
 
 }
 
@@ -36,7 +37,7 @@ h1, h2, h3 {
 .team {
     background: #2d3134;
     color: #ddd;
-    min-width: 30vw;
+    min-width: 26vw;
 }
 
 .header {
@@ -61,7 +62,7 @@ h1, h2, h3 {
 .team-a-winning #team-a .points { color: #6a4aeb; }
 .team-b-winning #team-b .points { color: #2b8fd0; }
 
-.members-container, .questions-container {
+.members-container, .questions-container, #instructions-container {
     margin: 30px 0;
 }
 
@@ -87,7 +88,7 @@ h1, h2, h3 {
 .questions-header h2 span {
     font-size: 24px;
 }
-.members, .questions {
+.members, .questions, #instructions {
     background: #373e42;
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
@@ -113,6 +114,22 @@ h1, h2, h3 {
     background: #32373a;
 }
 
+#current-question-category span {
+    display: none;
+}
+#category-unkn {
+    color: #e3643c;
+}
+#current-question-category.unkn #category-unkn,
+#current-question-category.bio  #category-bio,
+#current-question-category.chem #category-chem,
+#current-question-category.eart #category-eart,
+#current-question-category.ener #category-ener,
+#current-question-category.math #category-math,
+#current-question-category.phys #category-phys {
+    display: inline;
+}
+
 button {
     outline: 0;
     border: 0;
@@ -120,14 +137,28 @@ button {
     font: inherit;
 }
 
+#controls button {
+    border-radius: 4px;
+    padding: 20px;
+    font-size: 20px;
+}
+
+#start-stop-question button {
+    width: 100%;
+}
+#stop-reading-button {
+    display: none;
+}
+
+#judging.hidden {
+    display: none;
+}
 #judging {
     display: flex;
     justify-content: space-between;
 }
 
 #judging button {
-    border-radius: 4px;
-    padding: 20px;
     width: 50%;
 }
 #correct-button {
@@ -138,12 +169,11 @@ button {
     background: #ed4949;
 }
 
-.instructions {
-    font: 22px/1.7 "Open Sans";
-    background: #262a2d;
-    padding: 20px;
-    margin: 20px 0;
-    border-radius: 3px;
+#instructions {
+    font: 18px/1.5 "Open Sans";
+    letter-spacing: 0.5px;
+    padding: 10px;
+    background: #2d3134;
 }
 
 #timer {
@@ -171,4 +201,89 @@ button {
     to {
         stroke-dashoffset: 339.292px;
     }
+}
+
+body {
+    overflow-y: hidden;
+}
+.middle {
+    overflow-y: scroll;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+	background-color: #32373a;
+} ::-webkit-scrollbar-thumb {
+    background-color: #666;
+} ::-webkit-scrollbar-thumb:hover {
+    background-color: #999;
+} ::-webkit-scrollbar-thumb:active {
+    background-color: #bbb;
+}
+
+#title-bar {
+    margin-top: 1px;
+    -webkit-user-select: none;
+    -webkit-app-region: drag;
+    padding: 2px;
+    background: #2d3134;
+    color: #aaa;
+}
+#title {
+    margin-left: 4px;
+    font: 16px "Montserrat";
+}
+#title-bar button {
+    -webkit-app-region: no-drag;
+}
+#title-bar > div {
+    display: inline-block;
+}
+#title-options {
+    margin-left: 40px;
+    margin-top: -1px;
+}
+#title-options button {
+    padding: 2px 10px;
+    background: #2d3134;
+    font-size: 14px;
+    color: #888;
+    fill: #888;
+    border-radius: 2px;
+    transition: 0.1s ease-out;
+}
+#title-options button:hover {
+    background: #3a4145;
+    color: #fed42a;
+    fill: #fed42a;
+}
+#title-options button svg {
+    width: 16px;
+    height: 16px;
+    display: inline;
+    vertical-align: text-bottom;
+}
+#window-buttons {
+    position: fixed;
+    top: 0px;
+    right: 2px;
+}
+#window-buttons button {
+    padding: 5px 20px;
+    background: #2d3134;
+    font-family: "Segoe MDL2 Assets";
+    font-size: 12px;
+    height: 30px;
+    color: #aaa;
+    transition: 0.1s ease-out;
+}
+#window-buttons #restore-btn {
+    display: none;
+}
+#window-buttons button:hover {
+    background: #3a4145;
+    color: #eee;
+}
+#window-buttons #close-btn:hover {
+    background: #d0240c;
 }

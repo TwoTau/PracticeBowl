@@ -9,12 +9,13 @@ function createWindow () {
 	mainWindow = new BrowserWindow({
 		title: "Practice Science Bowl",
 		autoHideMenuBar: true,
+		frame: false,
 		darkTheme: true,
 		backgroundColor: "#32373a",
 		width: 1000,
 		height: 600,
 		minWidth: 950,
-		minHeight: 600
+		minHeight: 400
 	})
 	// mainWindow.setMenu(null)
 	mainWindow.loadFile("index.html")
