@@ -85,19 +85,23 @@
 					<svg viewBox="0 0 14 16" version="1.1"><path fill-rule="evenodd" d="M6.3 5.69a.942.942 0 0 1-.28-.7c0-.28.09-.52.28-.7.19-.18.42-.28.7-.28.28 0 .52.09.7.28.18.19.28.42.28.7 0 .28-.09.52-.28.7a1 1 0 0 1-.7.3c-.28 0-.52-.11-.7-.3zM8 7.99c-.02-.25-.11-.48-.31-.69-.2-.19-.42-.3-.69-.31H6c-.27.02-.48.13-.69.31-.2.2-.3.44-.31.69h1v3c.02.27.11.5.31.69.2.2.42.31.69.31h1c.27 0 .48-.11.69-.31.2-.19.3-.42.31-.69H8V7.98v.01zM7 2.3c-3.14 0-5.7 2.54-5.7 5.68 0 3.14 2.56 5.7 5.7 5.7s5.7-2.55 5.7-5.7c0-3.15-2.56-5.69-5.7-5.69v.01zM7 .98c3.86 0 7 3.14 7 7s-3.14 7-7 7-7-3.12-7-7 3.14-7 7-7z"></path></svg>
 					<h2>Instructions</h2>
 				</div>
-				<div id="instructions">
-					<span>Press the space bar and hold down while reading the question. When you finish fully reading the question, immediately let go.</span>
-					<span>Let go of the spacebar when you finish fully reading the question.</span>
-					<span>Time is over. Read the correct answer. When you finish, press the "q" key once.</span>
-					<span>Read the correct answer. When you finish, press the "q" key once.</span>
-					<span>Let go of the spacebar when you finish fully reading the bonus question.</span>
-					<span>Press the space bar and hold down while reading the bonus question. When you finish fully reading the question, immediately let go.</span>
-					<span>INTERRUPT by Team A. If Team A is correct, press "P", otherwise press anything else.</span>
-					<span>INTERRUPT by Team B. If Team B is correct, press "P", otherwise press anything else.</span>
-					<span>Team A has buzzed in. If Team A is correct, press "P", otherwise press anything else</span>
-					<span>Team B has buzzed in. If Team B is correct, press "P", otherwise press anything else</span>
-					<span>Waiting for a buzz from Team A.</span>
-					<span>Waiting for a buzz from Team B.</span>
+				<div id="instructions" class="start-reading-toss-up">
+					<span id="start-reading-toss-up">Click the "Start reading" button when you start reading the toss up question.</span>
+					<span id="stop-reading-toss-up">Click the "Stop reading" button when you finish reading the toss up question.</span>
+					<span id="start-reading-bonus">Click the "Start reading" button when you start reading the bonus question.</span>
+					<span id="stop-reading-bonus">Click the "Stop reading" button when you finish reading the bonus question.</span>
+
+					<span id="read-correct-answer">Read the correct answer. When you finish, press the "q" key to go to the next toss up question.</span>
+
+					<span id="buzz-team-a"><strong>Buzz</strong> from <span class="team-highlight-a">Team A</span>. Are they right or wrong?</span>
+					<span id="buzz-team-b"><strong>Buzz</strong> from <span class="team-highlight-b">Team B</span>. Are they right or wrong?</span>
+
+					<span id="interrupt-team-a"><strong>Interrupt</strong> from <span class="team-highlight-a">Team A</span>. Are they right or wrong?</span>
+					<span id="interrupt-team-b"><strong>Interrupt</strong> from <span class="team-highlight-b">Team B</span>. Are they right or wrong?</span>
+
+					<span id="waiting-buzz-team-either">Waiting for a buzz from either team.</span>
+					<span id="waiting-buzz-team-a">Waiting for a buzz from <span class="team-highlight-a">Team A</span>.</span>
+					<span id="waiting-buzz-team-b">Waiting for a buzz from <span class="team-highlight-b">Team B</span>.</span>
 				</div>
 			</div>
 
@@ -122,15 +126,13 @@
 						</button>
 					</div>
 
-					<div id="judging" class="hidden">
+					<div id="judging">
 						<button id="correct-button">
 							<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M13.991 13.991c-.05.69-1.269 1-1.998 1H5.666l-1.668-1V7.995c1.359 0 2.108-.75 3.128-1.879 1.229-1.359 1.139-2.558.879-4.127-.08-.5.5-1 1-1 .829 0 1.998 2.729 1.998 3.998l-.02 1.03c0 .689.33.969 1.02.969H14c.63 0 .98.36 1 .999l-1 5.996-.01.01zm0-7.995h-2.018l.02-.98C11.993 3.719 10.823 0 8.994 0c-.58 0-1.169.3-1.559.77-.36.41-.5.909-.42 1.409.25 1.479.28 2.278-.629 3.278-1 1.089-1.48 1.549-2.388 1.549h-2C.94 6.996 0 7.935 0 8.994v3.998c0 1.06.94 1.999 1.999 1.999h1.719l1.439.86c.16.089.33.139.52.139h6.325c1.13 0 2.839-.5 2.999-1.879l.979-5.946c.02-.08.02-.14.02-.2-.03-1.17-.84-1.969-1.999-1.969h-.01z"/></svg>
-							<br>
 							<span>Correct</span>
 						</button>
 						<button id="incorrect-button">
 							<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15.97 7.825L15 1.88C14.83.499 13.123 0 11.994 0H5.686c-.2 0-.38.05-.53.14L3.719 1h-1.72C.94 1 0 1.938 0 2.997v3.998c0 1.059.94 2.018 1.999 1.998h1.999c.909 0 1.389.45 2.388 1.55.91.999.88 1.798.63 3.267-.08.5.06 1 .42 1.42.39.47.979.769 1.558.769 1.83 0 2.999-3.718 2.999-5.017l-.02-.98h2.038c1.16 0 1.949-.799 1.979-1.968 0-.06.02-.13-.02-.2v-.01zm-1.969 1.19h-1.989c-.7 0-1.029.28-1.029.969l.03 1.03c0 1.268-1.17 3.997-1.999 3.997-.5 0-1.079-.5-.999-1 .25-1.579.34-2.778-.89-4.137-1.019-1.13-1.768-1.879-3.127-1.879V1.999l1.668-1h6.327c.729 0 1.948.31 1.998 1l.02.02 1 5.996c-.03.64-.38 1-1 1h-.01z"/></svg>
-							<br>
 							<span>Wrong</span>
 						</button>
 					</div>

@@ -1,7 +1,7 @@
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 html, body {
@@ -9,9 +9,9 @@ html, body {
 }
 
 body {
-    font: 16px/1.5 "Segoe UI", "Open Sans", sans-serif;
     background: #32373a;
     color: #ddd;
+    font: 16px/1.5 "Segoe UI", "Open Sans", sans-serif;
 }
 
 #container {
@@ -21,29 +21,32 @@ body {
 }
 
 h1, h2, h3 {
+    color: #c0c0c0;
     font: 30px "Montserrat";
     font-weight: normal;
     letter-spacing: 1px;
-    color: #c0c0c0;
 
 }
 
 .col {
     flex-grow: 1;
-    padding: 30px;
     min-width: 300px;
+    padding: 30px;
 }
 
 .team {
+    min-width: 26vw;
     background: #2d3134;
     color: #ddd;
-    min-width: 26vw;
+}
+.middle {
+    min-width: 48vw;
 }
 
 .header {
-    background: #262a2d;
-    border-radius: 3px;
     padding: 5px;
+    border-radius: 3px;
+    background: #262a2d;
 }
 
 .team-header, #question-header {
@@ -70,8 +73,8 @@ h1, h2, h3 {
     padding: 6px;
 }
 .header svg {
-    display: inline;
     fill: #777;
+    display: inline;
     height: 24px;
     margin: 0 10px;
     vertical-align: text-bottom;
@@ -89,20 +92,20 @@ h1, h2, h3 {
     font-size: 24px;
 }
 .members, .questions, #instructions {
-    background: #373e42;
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
     padding: 5px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    background: #373e42;
 }
 .members span, .questions span {
-    white-space: nowrap;
-    background: #2d3134;
-    padding: 1px 4px;
-    border-radius: 2px;
     display: inline-block;
     margin: 2px;
-    transition: 0.2s ease-out;
+    padding: 1px 4px;
+    border-radius: 2px;
+    background: #2d3134;
+    white-space: nowrap;
     cursor: default;
+    transition: 0.2s ease-out;
 }
 .header .collapse-icon-container {
     float: right;
@@ -130,16 +133,40 @@ h1, h2, h3 {
     display: inline;
 }
 
+#instructions > span {
+    display: none;
+}
+#instructions.start-reading-toss-up #start-reading-toss-up,
+#instructions.stop-reading-toss-up #stop-reading-toss-up,
+#instructions.start-reading-bonus #start-reading-bonus,
+#instructions.stop-reading-bonus #stop-reading-bonus,
+#instructions.read-correct-answer #read-correct-answer,
+#instructions.buzz-team-a #buzz-team-a,
+#instructions.buzz-team-b #buzz-team-b,
+#instructions.interrupt-team-a #interrupt-team-a,
+#instructions.interrupt-team-b #interrupt-team-b,
+#instructions.waiting-buzz-team-either #waiting-buzz-team-either,
+#instructions.waiting-buzz-team-a #waiting-buzz-team-a,
+#instructions.waiting-buzz-team-b #waiting-buzz-team-b {
+    display: inline;
+}
+
+#instructions strong {
+    color: #fed42a;
+}
+#instructions span.team-highlight-a { border-bottom: 3px solid #6a4aeb; }
+#instructions span.team-highlight-b { border-bottom: 3px solid #2b8fd0; }
+
 button {
-    outline: 0;
     border: 0;
+    outline: 0;
     background: #eee;
     font: inherit;
 }
 
 #controls button {
-    border-radius: 4px;
     padding: 20px;
+    border-radius: 4px;
     font-size: 20px;
 }
 
@@ -150,56 +177,106 @@ button {
     display: none;
 }
 
-#judging.hidden {
-    display: none;
-}
 #judging {
     display: flex;
     justify-content: space-between;
 }
 
 #judging button {
+    position: relative;
     width: 50%;
+    padding: 20px;
+    border-radius: 4px;
+    font-size: 20px;
+}
+#judging button span {
+    position: absolute;
+    right: 0;
+    left: 0;
+    margin: auto;
+    opacity: 0;
+}
+#judging button svg {
+    fill: rgba(10, 10, 10, 0.8);
+    height: 30px;
+    vertical-align: text-bottom;
+}
+#judging button span, #judging button svg {
+    transition: 0.1s ease-out;
+}
+#judging button:hover span {
+    opacity: 1;
+}
+#judging button:hover svg {
+    opacity: 0;
 }
 #correct-button {
-    background: #20c05c;
     margin-right: 20px;
+    background: #20c05c;
+}
+#correct-button:hover {
+    background: #00d64b;
 }
 #incorrect-button {
     background: #ed4949;
 }
+#incorrect-button:hover {
+    background: #e83130;
+}
+
+.middle button:active {
+    transform: translateY(2px);
+}
 
 #instructions {
-    font: 18px/1.5 "Open Sans";
-    letter-spacing: 0.5px;
     padding: 10px;
     background: #2d3134;
+    font: 18px/1.5 "Open Sans";
+    letter-spacing: 0.5px;
 }
 
 #timer {
     display: none;
+    text-align: center;
 }
 #timer svg text {
-    font: 30px sans-serif;
     text-anchor: middle;
     alignment-baseline: middle;
+    font: 30px sans-serif;
 }
 #timer svg circle.moving {
     animation: none;
 }
-#timer svg circle.moving.start-tossup {
-    animation: timerAnimation 5s linear;
+#timer.start-tossup svg circle.moving {
+    animation: timerCircleAnimation 5s linear;
 }
-#timer svg circle.moving.start-bonus {
-    animation: timerAnimation 20s linear;
+#timer.start-tossup svg text {
+    animation: timerTextAnimation 5s linear;
+}
+#timer.start-bonus svg circle.moving {
+    animation: timerCircleAnimation 20s linear;
+}
+#timer.start-bonus svg text {
+    animation: timerTextAnimation 20s linear;
 }
 
-@keyframes timerAnimation {
+@keyframes timerCircleAnimation {
     from {
         stroke-dashoffset: 0px;
+        stroke: #fed42a;
     }
     to {
         stroke-dashoffset: 339.292px;
+        stroke: #fe2a2a;
+    }
+}
+
+@keyframes timerTextAnimation {
+    from {
+        fill: #fed42a;
+    }
+    to {
+        fill: #fe2a2a;
     }
 }
 
@@ -222,9 +299,9 @@ body {
 }
 
 #title-bar {
-    margin-top: 1px;
     -webkit-user-select: none;
     -webkit-app-region: drag;
+    margin-top: 1px;
     padding: 2px;
     background: #2d3134;
     color: #aaa;
@@ -240,27 +317,27 @@ body {
     display: inline-block;
 }
 #title-options {
-    margin-left: 40px;
     margin-top: -1px;
+    margin-left: 40px;
 }
 #title-options button {
-    padding: 2px 10px;
-    background: #2d3134;
-    font-size: 14px;
-    color: #888;
     fill: #888;
+    padding: 2px 10px;
     border-radius: 2px;
+    background: #2d3134;
+    color: #888;
+    font-size: 14px;
     transition: 0.1s ease-out;
 }
 #title-options button:hover {
+    fill: #fed42a;
     background: #3a4145;
     color: #fed42a;
-    fill: #fed42a;
 }
 #title-options button svg {
+    display: inline;
     width: 16px;
     height: 16px;
-    display: inline;
     vertical-align: text-bottom;
 }
 #window-buttons {
@@ -269,12 +346,12 @@ body {
     right: 2px;
 }
 #window-buttons button {
+    height: 30px;
     padding: 5px 20px;
     background: #2d3134;
+    color: #aaa;
     font-family: "Segoe MDL2 Assets";
     font-size: 12px;
-    height: 30px;
-    color: #aaa;
     transition: 0.1s ease-out;
 }
 #window-buttons #restore-btn {

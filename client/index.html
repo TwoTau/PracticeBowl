@@ -57,16 +57,21 @@
 				console.log("Connected!");
 
 				socket.emit("new-member", {
-					"name": name,
-					"team": team
+					"team": team,
+					"name": name
 				});
 
 				$("#buzzer").click(() => {
 					socket.emit("buzz", {
-						"name": name,
-						"team": team
+						"team": team,
+						"name": name
 					});
 				});
+			});
+			socket.on("scores", (scores) => {
+				console.log(`Got scores: A: ${scores.aScore} and B: ${scores.bScore}`);
+				$("#a-score").text(scores.aScore);
+				$("#b-score").text(scores.bScore);
 			});
 			socket.on("disconnect", () => {
 				console.log("Disconnected!");

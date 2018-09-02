@@ -5,9 +5,9 @@ module.exports = class Timer {
         this.timeElement = timeElement
         this.showElement()
         if (timeLimit > 10) {
-            timeElement.find(".moving").addClass("start-bonus")
+            timeElement.addClass("start-bonus")
         } else {
-            timeElement.find(".moving").addClass("start-tossup")
+            timeElement.addClass("start-tossup")
         }
         const textElement = timeElement.find("text")
     	this.timer = setInterval(() => {
@@ -30,8 +30,8 @@ module.exports = class Timer {
     // ends the timer process and hides the element
     end() {
         clearInterval(this.timer)
-        this.timeElement.find(".moving").removeClass("start-tossup")
-        this.timeElement.find(".moving").removeClass("start-bonus")
+        this.timeElement.removeClass("start-tossup")
+        this.timeElement.removeClass("start-bonus")
         this.hideElement()
     }
 
@@ -40,6 +40,6 @@ module.exports = class Timer {
     }
 
     hideElement() {
-        this.timeElement.slideUp(100)
+        this.timeElement.hide()
     }
 }

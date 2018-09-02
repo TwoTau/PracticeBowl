@@ -11,6 +11,7 @@ const TIME_TO_ANSWER_TOSS_UP = 5 // 5 second timer
 const TIME_TO_ANSWER_BONUS = 20 // 20 second timer
 
 const instructionsElement = $("#instructions")
+$("#judging").hide()
 
 let question = 0
 let allQuestions = []
@@ -50,6 +51,8 @@ class Team {
 		} else if (this.points === getOtherTeam(this).points) {
 			$("#container").attr("class", `neither-winning`)
 		}
+
+		quizCoordinator.sendScores()
 	}
 	addCorrect(questionObject) {
 		this.qCorrect.push(questionObject)
@@ -67,8 +70,10 @@ class Team {
 		this.members.push(member)
 		this.updateMemberHtml()
 	}
-	removeMember(member) {
-		const index = this.members.indexOf(member)
+	removeMember(socket) {
+		const index = this.members.findIndex((member) => {
+			return member.socket === socket;
+		})
 		if (index !== -1) {
 			this.members.splice(index, 1)
 			this.updateMemberHtml()
@@ -99,121 +104,193 @@ const teamB = new Team("b")
 // teamB.addCorrect(new Question(3, false))
 // teamB.addCorrect(new Question(3, true))
 
-function performTossUpProcess(excludeTeamA, excludeTeamB) {
-	instructionsElement.text("Click the STOP reading button when you are finished.")
+const QuizCoordinator = require("./server.js")
+const quizCoordinator = new QuizCoordinator(emitter, teamA, teamB)
 
-	listeningFor = "interrupt"
+console.log(quizCoordinator)
 
-	if (!excludeTeamA && !excludeTeamB) {
-		// listen for interrupt buzzes
-		emitter.once("team-buzz", handleTossUpInterrupt)
-	}
-
-	// second space listener (finish reading question)
-	$("#stop-reading-button").one("click", () => {
-		$("#stop-reading-button").hide()
-
-		// delete interrupt listener
-		emitter.removeListener("team-buzz", handleTossUpInterrupt)
-
-		listeningFor = "team-buzz"
-
-		// start the timer
-		let timer = new Timer($("#timer"), emitter, TIME_TO_ANSWER_TOSS_UP)
-
-		// listen for normal buzzes
-		emitter.once("team-buzz", function handle(team) {
-			if (!(excludeTeamA && team.side === "a") && !(excludeTeamB && team.side === "b")) {
-				handleTossUpBuzz(team, timer)
-			}
-		})
-
-		emitter.once("time-end", () => {
-			// stop listening for buzzes
-			emitter.removeAllListeners("team-buzz")
-
-			instructionsElement.text("Time is over. Read the correct answer. When you finish, press the \"q\" key once.")
-
-			$(document).on("keydown", (event) => {
-				if (event.key === "q") {
-					$(document).off("keydown")
-
-					createTossUpListener(false, false)
-				}
-			})
-		})
-	})
-}
-
-function performBonusProcess(team) {
-	instructionsElement.text("Click 'stop reading' when done.")
-
-	listeningFor = "none"
-
-	// (finish reading question)
-	$("#stop-reading-button").one("click", () => {
-		$("#stop-reading-button").hide()
-
-		listeningFor = "team-buzz"
-
-		// start the timer
-		let timer = new Timer($("#timer"), emitter, TIME_TO_ANSWER_BONUS)
-
-		// listen for buzzes from the bonus team
-		emitter.on("team-buzz", function handle(buzzedTeam) {
-			if (buzzedTeam === team) {
-				emitter.removeAllListeners("team-buzz")
-				handleBonusBuzz(team, timer)
-			}
-		})
-
-		emitter.once("time-end", () => {
-			// stop listening for buzzes
-			emitter.removeAllListeners("team-buzz")
-
-			instructionsElement.text("Time is over. Read the correct answer. When you finish, press the \"q\" key once.")
-
-			$(document).on("keydown", (event) => {
-				if (event.key === "q") {
-					$(document).off("keydown")
-
-					createTossUpListener(false, false)
-				}
-			})
-		})
-	})
-}
-
-function createTossUpListener(excludeTeamA, excludeTeamB) {
+function incrementQuestion() {
 	question++
 	console.log(`Question is now ${question}`)
 	isBonus = false
-	$("#current-question").text(`Q ${question}`)
 
-	instructionsElement.text("Click the 'start reading' button when you start reading the question. When you finish, click 'stop reading'.")
+	$("#current-question").text(`Q ${question}`)
+}
+function setBonusTrue() {
+	isBonus = true
+	$("#current-question").text(`Q ${question} B`)
+}
+
+// first question listener
+incrementQuestion()
+createTossUpListener(false, false)
+
+function createTossUpListener(excludeTeamA, excludeTeamB) {
+	instructionsElement.attr("class", "start-reading-toss-up")
 
 	$("#start-reading-button").show()
 	$("#stop-reading-button").hide()
 
 	$("#start-reading-button").one("click", () => {
-		$("#start-reading-button").hide()
-		$("#stop-reading-button").show()
 		performTossUpProcess(excludeTeamA, excludeTeamB)
 	})
+}
 
-	// $(document).on("keydown", (event) => {
-	// 	if (event.key === " ") {
-	// 		$(document).off("keydown")
-	// 		performTossUpProcess(excludeTeamA, excludeTeamB)
-	// 	}
-	// })
+function performTossUpProcess(excludeTeamA, excludeTeamB) {
+	$("#start-reading-button").hide()
+	$("#stop-reading-button").show()
+
+	instructionsElement.attr("class", "stop-reading-toss-up")
+
+	listeningFor = "interrupt"
+
+	// listen for interrupts only if the question is available to both teams
+	if (!excludeTeamA && !excludeTeamB) {
+		emitter.once("team-buzz", handleTossUpInterrupt)
+	}
+
+	// listener for finish reading question
+	$("#stop-reading-button").one("click", () => {
+		startListeningForBuzzes(excludeTeamA, excludeTeamB)
+	})
+}
+
+// PRE: start reading button is hidden, no timer, no team-buzz or time-end listeners
+function startListeningForBuzzes(excludeTeamA, excludeTeamB) {
+	$("#stop-reading-button").hide()
+
+	// delete interrupt listener
+	emitter.removeAllListeners("team-buzz")
+
+	listeningFor = "team-buzz"
+
+	if (excludeTeamA && !excludeTeamB) {
+		instructionsElement.attr("class", "waiting-buzz-team-b")
+	} else if (!excludeTeamA && excludeTeamB) {
+		instructionsElement.attr("class", "waiting-buzz-team-a")
+	} else {
+		instructionsElement.attr("class", "waiting-buzz-team-either")
+	}
+
+	// start the 5 second timer
+	let timer = new Timer($("#timer"), emitter, TIME_TO_ANSWER_TOSS_UP)
+
+	// listen for normal buzzes
+	emitter.on("team-buzz", function handle(data) {
+		const team = data.team
+		// if the buzzed team is not excluded, handle the buzz
+		if (!(excludeTeamA && team.side === "a") && !(excludeTeamB && team.side === "b")) {
+			// remove timer end listener
+			emitter.removeAllListeners("time-end")
+			timer.end()
+			emitter.removeAllListeners("team-buzz")
+
+			handleTossUpBuzz(excludeTeamA, excludeTeamB, data)
+		}
+	})
+
+	emitter.once("time-end", () => {
+		// stop listening for buzzes
+		emitter.removeAllListeners("team-buzz")
+		goToNextQuestion()
+	})
+}
+
+function goToNextQuestion() {
+	instructionsElement.attr("class", "read-correct-answer")
+
+	$(document).on("keydown", (event) => {
+		if (event.key === "q") {
+			$(document).off("keydown")
+
+			incrementQuestion()
+			createTossUpListener(false, false)
+		}
+	})
+}
+
+function handleTossUpInterrupt(data) {
+	const team = data.team
+
+	console.log(team.toString() + " INTERRUPT")
+
+	// delete space up listener
+
+	$("#stop-reading-button").hide()
+	$("#stop-reading-button").off("click")
+
+	instructionsElement.attr("class", `interrupt-team-${team.side}`)
+	$(`#interrupt-team-${team.side} .team-highlight-${team.side}`).text(`${data.name} (${team.toString()})`)
+
+	askJudging(function() {
+		team.addCorrect(new Question(question, false, team.side))
+
+		// give the team the bonus question
+		createBonusListener(team)
+	}, function() {
+		const otherTeam = getOtherTeam(team)
+		otherTeam.addPoints(4)
+
+		// restart question
+		if (team.side === "a") {
+			performTossUpProcess(true, false)
+		} else {
+			performTossUpProcess(false, true)
+		}
+	})
+}
+
+function askJudging(correctHandler, incorrectHandler) {
+	$("#judging").show()
+
+	$("#correct-button").one("click", () => {
+		$("#incorrect-button").off("click")
+		$("#judging").hide()
+
+		correctHandler()
+	})
+
+	$("#incorrect-button").one("click", () => {
+		$("#correct-button").off("click")
+		$("#judging").hide()
+
+		incorrectHandler()
+	})
+}
+
+function handleTossUpBuzz(excludeTeamA, excludeTeamB, data) {
+	const team = data.team
+
+	console.log(team.toString() + " normal")
+
+	instructionsElement.attr("class", `buzz-team-${team.side}`)
+	$(`#buzz-team-${team.side} .team-highlight-${team.side}`).text(`${data.name} (${team.toString()})`)
+
+	askJudging(function() {
+		team.addCorrect(new Question(question, false, team.side))
+
+		// give the team the bonus question
+		createBonusListener(team)
+	}, function() {
+		const otherTeam = getOtherTeam(team)
+
+		// both teams answered wrong
+		if ((excludeTeamA && otherTeam.side === "a") || (excludeTeamB && otherTeam.side === "b")) {
+			goToNextQuestion()
+		} else {
+			if (otherTeam.side === "a") { // exclude Team B
+				startListeningForBuzzes(false, true)
+			} else { // exclude Team A
+				startListeningForBuzzes(true, false)
+			}
+		}
+	})
 }
 
 function createBonusListener(team) {
-	isBonus = true
-	$("#current-question").text(`Q ${question} B`)
+	setBonusTrue()
 
-	instructionsElement.text("Click or something.")
+	instructionsElement.attr("class", "start-reading-bonus")
 
 	$("#start-reading-button").show()
 	$("#stop-reading-button").hide()
@@ -225,138 +302,61 @@ function createBonusListener(team) {
 	})
 }
 
-// first space listener
-createTossUpListener(false, false)
+function performBonusProcess(team) {
+	instructionsElement.attr("class", "stop-reading-bonus")
 
-function handleTossUpInterrupt(team) {
-	if (listeningFor === "interrupt") {
-		console.log(team.toString() + " INTERRUPT")
+	listeningFor = "none"
 
-		// delete space up listener
-		$(document).off("keyup")
+	// finish reading question
+	$("#stop-reading-button").one("click", () => {
+		$("#stop-reading-button").hide()
 
-		instructionsElement.text(`INTERRUPT by ${team.toString()}. If ${team.toString()} is correct, press "P", otherwise press anything else.`)
+		listeningFor = "team-buzz"
 
-		$(document).one("keypress", (event) => {
-			if (event.key === "p") {
-				team.addCorrect(new Question(question, false, team.side))
+		// start the timer
+		let timer = new Timer($("#timer"), emitter, TIME_TO_ANSWER_BONUS)
 
-				// give the team the bonus question
-				createBonusListener(team)
-			} else {
-				const otherTeam = getOtherTeam(team)
-				otherTeam.addPoints(4)
+		// listen for buzzes from the bonus team
+		emitter.on("team-buzz", (data) => {
+			if (data.team === team) {
+				emitter.removeAllListeners("team-buzz")
+				emitter.removeAllListeners("timer-end")
+				timer.end()
 
-				// restart question
-				question-- // because performTossUpProcess auto increments question number
-				if (team.side === "a") {
-					performTossUpProcess(true, false)
-				} else {
-					performTossUpProcess(false, true)
-				}
+				instructionsElement.attr("class", `buzz-team-${team.side}`)
+				$(`#buzz-team-${team.side} .team-highlight-${team.side}`).text(`${data.name} (${team.toString()})`)
+
+				askJudging(function() {
+					team.addCorrect(new Question(question, true, team.side))
+					goToNextQuestion()
+				}, function() {
+					goToNextQuestion()
+				})
 			}
 		})
-	}
-}
 
-function handleTossUpBuzz(team, timer) {
-	console.log(team.toString() + " normal")
-	$(document).off("keyup")
+		emitter.once("time-end", () => {
+			// stop listening for buzzes
+			emitter.removeAllListeners("team-buzz")
 
-	emitter.removeAllListeners("time-end")
-	timer.end()
+			instructionsElement.attr("class", "read-correct-answer")
 
-	instructionsElement.text(`${team.toString()} has buzzed in. If ${team.toString()} is correct, press "P", otherwise press anything else.`)
-
-	$(document).one("keypress", (event) => {
-		if (event.key === "p") {
-			team.addCorrect(new Question(question, false, team.side))
-
-			// give the team the bonus question
-			createBonusListener(team)
-		} else {
-			const otherTeam = getOtherTeam(team)
-
-			listeningFor = "team-buzz"
-
-			instructionsElement.text(`Waiting for a buzz from ${otherTeam.toString()}.`)
-
-			// start the timer
-			let newTimer = new Timer($("#timer"), emitter, TIME_TO_ANSWER_TOSS_UP)
-
-			// listen for normal buzzes
-			emitter.on("team-buzz", function handle(buzzedTeam) {
-				if (buzzedTeam === otherTeam) {
-					newTimer.end()
-					emitter.removeAllListeners("time-end")
-					emitter.removeAllListeners("team-buzz")
-
-					instructionsElement.text(`${buzzedTeam.toString()} has buzzed in. If ${buzzedTeam.toString()} is correct, press "P", otherwise press anything else.`)
-
-					$(document).one("keypress", (event) => {
-						if (event.key === "p") {
-							buzzedTeam.addCorrect(new Question(question, false, buzzedTeam.side))
-
-							// give the team the bonus question
-							createBonusListener(buzzedTeam)
-						} else {
-							instructionsElement.text("Read the correct answer. When you finish, press the \"q\" key once.")
-
-							$(document).on("keydown", (event) => {
-								if (event.key === "q") {
-									$(document).off("keydown")
-
-									createTossUpListener(false, false)
-								}
-							})
-						}
-					})
-				}
-			})
-
-			emitter.once("time-end", () => {
-				// stop listening for buzzes
-				emitter.removeAllListeners("team-buzz")
-
-				instructionsElement.text("Time is over. Read the correct answer. When you finish, press the \"q\" key once.")
-
-				$(document).on("keydown", (event) => {
-					if (event.key === "q") {
-						$(document).off("keydown")
-						console.log(`In q, the question is ${question}`)
-						createTossUpListener(false, false)
-					}
-				})
-			})
-		}
+			goToNextQuestion()
+		})
 	})
 }
 
-function handleBonusBuzz(team, timer) {
-	console.log(team.toString() + " bonus buzz")
-	$(document).off("keyup")
-
-	timer.end()
-
-	instructionsElement.text(`${team.toString()} has buzzed in. If ${team.toString()} is correct, press "P", otherwise press anything else.`)
-
-	$(document).one("keypress", (event) => {
-		if (event.key === "p") {
-			team.addCorrect(new Question(question, true, team.side))
-		}
-		createTossUpListener(false, false)
-	})
-}
-
-$(document).on("keypress", (event) => {
-	if (event.key === "a") {
-		emitter.emit("team-buzz", teamA)
-	} else if (event.key === "b") {
-		emitter.emit("team-buzz", teamB)
-	}
-})
-
-const QuizCoordinator = require("./server.js")
-const quizCoordinator = new QuizCoordinator(emitter, teamA, teamB)
-
-console.log(quizCoordinator)
+// TODO: Remove this testing part
+// $(document).on("keypress", (event) => {
+// 	if (event.key === "a") {
+// 		emitter.emit("team-buzz", {
+// 			team: teamA,
+// 			name: "Some A Person"
+// 		})
+// 	} else if (event.key === "b") {
+// 		emitter.emit("team-buzz", {
+// 			team: teamB,
+// 			name: "Some B Person"
+// 		})
+// 	}
+// })
