@@ -4,110 +4,40 @@ const $ = require("jquery")
 const EventEmitter = require("events")
 const Timer = require("./timer")
 
+const Manager = require("./quiz-manager")
+
 class Emitter extends EventEmitter {}
 const emitter = new Emitter()
 
-const TIME_TO_ANSWER_TOSS_UP = 5 // 5 second timer
-const TIME_TO_ANSWER_BONUS = 20 // 20 second timer
+const TIME_TO_ANSWER_TOSS_UP = 5 // for 5 second timer
+const TIME_TO_ANSWER_BONUS = 20 // for 20 second timer
 
 const instructionsElement = $("#instructions")
+const listeningForElement = $("#listening-for")
+
+function setListeningFor(text) {
+	listeningForElement.text(text)
+}
+
 $("#judging").hide()
 
-let question = 0
+let question = 1
 let allQuestions = []
 let isBonus = false // either false, "a", or "b"
-let listeningFor = "none" // can be "interrupt", "team-buzz", "a-buzz", "b-buzz", "none"
-
-class Question {
-	// answeredBy is optional
-	constructor(questionNumber, isQuestionBonus, answeredBy) {
-		this.questionNumber = questionNumber
-		this.isBonus = isQuestionBonus
-		this.setAnsweredBy(answeredBy || "n/a")
-	}
-	// team is either "a", "b", "n/a", or "neither"
-	setAnsweredBy(team) {
-		this.answeredBy = team
-	}
-	getId() {
-		return this.questionNumber + (this.isBonus ? "B" : "")
-	}
-}
-
-class Team {
-	// side is either "a" or "b"
-	constructor(side) {
-		this.points = 0
-		this.members = []
-		this.qCorrect = []
-		this.side = side
-	}
-	addPoints(points) {
-		this.points += points
-		$(`#team-${this.side} .points`).text(this.points)
-
-		if (this.points > getOtherTeam(this).points) {
-			$("#container").attr("class", `team-${this.side}-winning`)
-		} else if (this.points === getOtherTeam(this).points) {
-			$("#container").attr("class", `neither-winning`)
-		}
-
-		quizCoordinator.sendScores()
-	}
-	addCorrect(questionObject) {
-		this.qCorrect.push(questionObject)
-		questionObject.setAnsweredBy(this.side)
-		$(`<span>${questionObject.getId()}</span>`).appendTo(`#team-${this.side} .questions`)
-		$(`#team-${this.side} .questions-header h2`).html(`<span>${this.qCorrect.length}</span> ${(this.qCorrect.length === 1) ? "question" : "questions"}`)
-
-		if (questionObject.isBonus) {
-			this.addPoints(10)
-		} else {
-			this.addPoints(4)
-		}
-	}
-	addMember(member) {
-		this.members.push(member)
-		this.updateMemberHtml()
-	}
-	removeMember(socket) {
-		const index = this.members.findIndex((member) => {
-			return member.socket === socket;
-		})
-		if (index !== -1) {
-			this.members.splice(index, 1)
-			this.updateMemberHtml()
-			return true
-		}
-		return false
-	}
-	updateMemberHtml() {
-		$(`#team-${this.side} .members-header h2`).html(`${this.members.length} ${(this.members.length === 1) ? "member" : "members"}`)
-		$(`#team-${this.side} .members`).html(`<span>${this.members.map(member => member.name).sort().join("</span><span>")}</span>`)
-	}
-	toString() {
-		return `Team ${this.side.toUpperCase()}`
-	}
-}
 
 function getOtherTeam(team) {
 	return (team === teamA) ? teamB : teamA
 }
 
-const teamA = new Team("a")
-const teamB = new Team("b")
+const teamA = new Manager.Team("a", $)
+const teamB = new Manager.Team("b", $)
+teamA.setPointerToOtherTeam(teamB)
+teamB.setPointerToOtherTeam(teamA)
 
-// // Testing purposes
-// teamA.addCorrect(new Question(1, false))
-// teamA.addCorrect(new Question(1, true))
-// teamB.addCorrect(new Question(2, false))
-// teamB.addCorrect(new Question(3, false))
-// teamB.addCorrect(new Question(3, true))
+const QuizServer = require("./server.js")
+const quizServer = new QuizServer(emitter, teamA, teamB)
 
-const QuizCoordinator = require("./server.js")
-const quizCoordinator = new QuizCoordinator(emitter, teamA, teamB)
-
-console.log(quizCoordinator)
+console.log(quizServer)
 
 function incrementQuestion() {
 	question++
@@ -122,10 +52,10 @@ function setBonusTrue() {
 }
 
 // first question listener
-incrementQuestion()
 createTossUpListener(false, false)
 
 function createTossUpListener(excludeTeamA, excludeTeamB) {
+	setListeningFor("None")
 	instructionsElement.attr("class", "start-reading-toss-up")
 
 	$("#start-reading-button").show()
@@ -142,11 +72,12 @@ function performTossUpProcess(excludeTeamA, excludeTeamB) {
 
 	instructionsElement.attr("class", "stop-reading-toss-up")
 
-	listeningFor = "interrupt"
-
 	// listen for interrupts only if the question is available to both teams
 	if (!excludeTeamA && !excludeTeamB) {
 		emitter.once("team-buzz", handleTossUpInterrupt)
+		setListeningFor("Interrupt")
+	} else {
+		setListeningFor("None")
 	}
 
 	// listener for finish reading question
@@ -162,13 +93,14 @@ function startListeningForBuzzes(excludeTeamA, excludeTeamB) {
 	// delete interrupt listener
 	emitter.removeAllListeners("team-buzz")
 
-	listeningFor = "team-buzz"
-
 	if (excludeTeamA && !excludeTeamB) {
+		setListeningFor("B Buzz")
 		instructionsElement.attr("class", "waiting-buzz-team-b")
 	} else if (!excludeTeamA && excludeTeamB) {
+		setListeningFor("A Buzz")
 		instructionsElement.attr("class", "waiting-buzz-team-a")
 	} else {
+		setListeningFor("Buzz")
 		instructionsElement.attr("class", "waiting-buzz-team-either")
 	}
 
@@ -191,12 +123,16 @@ function startListeningForBuzzes(excludeTeamA, excludeTeamB) {
 
 	emitter.once("time-end", () => {
 		// stop listening for buzzes
+		setListeningFor("None")
 		emitter.removeAllListeners("team-buzz")
 		goToNextQuestion()
 	})
 }
 
 function goToNextQuestion() {
+	quizServer.sendScores(question, isBonus)
+
+	setListeningFor("None")
 	instructionsElement.attr("class", "read-correct-answer")
 
 	$(document).on("keydown", (event) => {
@@ -204,6 +140,7 @@ function goToNextQuestion() {
 			$(document).off("keydown")
 
 			incrementQuestion()
+			quizServer.sendScores(question, isBonus)
 			createTossUpListener(false, false)
 		}
 	})
@@ -223,13 +160,14 @@ function handleTossUpInterrupt(data) {
 	$(`#interrupt-team-${team.side} .team-highlight-${team.side}`).text(`${data.name} (${team.toString()})`)
 
 	askJudging(function() {
-		team.addCorrect(new Question(question, false, team.side))
+		team.addCorrect(new Manager.Question(question, false, team.side))
 
 		// give the team the bonus question
 		createBonusListener(team)
 	}, function() {
 		const otherTeam = getOtherTeam(team)
 		otherTeam.addPoints(4)
+		quizServer.sendScores(question, isBonus)
 
 		// restart question
 		if (team.side === "a") {
@@ -242,6 +180,8 @@ function handleTossUpInterrupt(data) {
 
 function askJudging(correctHandler, incorrectHandler) {
 	$("#judging").show()
+
+	setListeningFor("None")
 
 	$("#correct-button").one("click", () => {
 		$("#incorrect-button").off("click")
@@ -267,7 +207,7 @@ function handleTossUpBuzz(excludeTeamA, excludeTeamB, data) {
 	$(`#buzz-team-${team.side} .team-highlight-${team.side}`).text(`${data.name} (${team.toString()})`)
 
 	askJudging(function() {
-		team.addCorrect(new Question(question, false, team.side))
+		team.addCorrect(new Manager.Question(question, false, team.side))
 
 		// give the team the bonus question
 		createBonusListener(team)
@@ -275,7 +215,7 @@ function handleTossUpBuzz(excludeTeamA, excludeTeamB, data) {
 		const otherTeam = getOtherTeam(team)
 
 		// both teams answered wrong
-		if ((excludeTeamA && otherTeam.side === "a") || (excludeTeamB && otherTeam.side === "b")) {
+		if ((excludeTeamA && team.side === "b") || (excludeTeamB && team.side === "a")) {
 			goToNextQuestion()
 		} else {
 			if (otherTeam.side === "a") { // exclude Team B
@@ -288,6 +228,7 @@ function handleTossUpBuzz(excludeTeamA, excludeTeamB, data) {
 }
 
 function createBonusListener(team) {
+	quizServer.sendScores(question, isBonus)
 	setBonusTrue()
 
 	instructionsElement.attr("class", "start-reading-bonus")
@@ -305,13 +246,15 @@ function createBonusListener(team) {
 function performBonusProcess(team) {
 	instructionsElement.attr("class", "stop-reading-bonus")
 
-	listeningFor = "none"
+	setListeningFor("None")
 
 	// finish reading question
 	$("#stop-reading-button").one("click", () => {
 		$("#stop-reading-button").hide()
 
-		listeningFor = "team-buzz"
+		setListeningFor(team.side.toUpperCase() + " Buzz")
+
+		instructionsElement.attr("class", "waiting-buzz-team-" + team.side)
 
 		// start the timer
 		let timer = new Timer($("#timer"), emitter, TIME_TO_ANSWER_BONUS)
@@ -327,7 +270,8 @@ function performBonusProcess(team) {
 				$(`#buzz-team-${team.side} .team-highlight-${team.side}`).text(`${data.name} (${team.toString()})`)
 
 				askJudging(function() {
-					team.addCorrect(new Question(question, true, team.side))
+					team.addCorrect(new Manager.Question(question, true, team.side))
+					quizServer.sendScores(question, isBonus)
 					goToNextQuestion()
 				}, function() {
 					goToNextQuestion()
@@ -339,6 +283,7 @@ function performBonusProcess(team) {
 			// stop listening for buzzes
 			emitter.removeAllListeners("team-buzz")
 
+			setListeningFor("None")
 			instructionsElement.attr("class", "read-correct-answer")
 
 			goToNextQuestion()
@@ -347,16 +292,16 @@ function performBonusProcess(team) {
 }
 
 // TODO: Remove this testing part
-// $(document).on("keypress", (event) => {
-// 	if (event.key === "a") {
-// 		emitter.emit("team-buzz", {
-// 			team: teamA,
-// 			name: "Some A Person"
-// 		})
-// 	} else if (event.key === "b") {
-// 		emitter.emit("team-buzz", {
-// 			team: teamB,
-// 			name: "Some B Person"
-// 		})
-// 	}
-// })
+$(document).on("keypress", (event) => {
+	if (event.key === "a") {
+		emitter.emit("team-buzz", {
+			team: teamA,
+			name: "Some A Person"
+		})
+	} else if (event.key === "b") {
+		emitter.emit("team-buzz", {
+			team: teamB,
+			name: "Some B Person"
+		})
+	}
+})

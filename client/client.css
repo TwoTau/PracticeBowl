@@ -72,14 +72,6 @@ button {
     position: absolute;
     right: 0;
     top: 0;
-
-    transition: 0.2s ease-out;
-}
-#buzzer:hover {
-    background: green;
-}
-#buzzer:active {
-    background: orange;
 }
 
 #overlay {

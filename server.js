@@ -3,6 +3,7 @@ const path = require("path")
 const app = express()
 const http = require("http").Server(app)
 const io = require("socket.io")(http)
+const ui = require("./ui-controls")
 
 class TeamMember {
 	constructor(name, socket) {
@@ -11,7 +12,7 @@ class TeamMember {
 	}
 }
 
-module.exports = class QuizCoordinator {
+module.exports = class QuizServer {
 	constructor(emitter, teamA, teamB) {
 		this.teamA = teamA
 		this.teamB = teamB
@@ -26,6 +27,8 @@ module.exports = class QuizCoordinator {
 			socket.on("new-member", (data) => {
 				console.log(`New member ${data.name} on Team ${data.team.toUpperCase()}`)
 				const member = new TeamMember(data.name, socket)
+
+				ui.incrementConnectedUsers(1);
 
 				if (data.team === "a") { // Team A
 					teamA.addMember(member)
@@ -47,16 +50,18 @@ module.exports = class QuizCoordinator {
 				console.log("A user disconnected")
 				teamA.removeMember(socket)
 				teamB.removeMember(socket)
+				ui.incrementConnectedUsers(-1)
 			})
-		});
+		})
 
-		http.listen(3000, () => console.log("Example app listening on port 3000!"))
+		http.listen(3000, () => console.log("Listening on port 3000!"))
 	}
 
-	sendScores() {
+	sendScores(question, isBonus) {
 		this.io.emit("scores", {
 			aScore: this.teamA.points,
-			bScore: this.teamB.points
+			bScore: this.teamB.points,
+			question: question + (isBonus ? "B" : "")
 		})
 	}
 }

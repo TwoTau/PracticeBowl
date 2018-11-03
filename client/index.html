@@ -5,6 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<meta name="theme-color" content="#4285f4">
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:400|Open+Sans:400,700" rel="stylesheet" lazyload>
 	<link href="client.css" rel="stylesheet">
 	<title>Practice Bowl</title>
 </head>
@@ -15,7 +16,7 @@
 			<div id="team">?</div>
 		</div>
 		<div id="score">
-			A: <span id="a-score">0</span> | B: <span id="b-score">0</span>
+			A: <span id="a-score">?</span> | B: <span id="b-score">?</span> | Q: <span id="question">?</span>
 		</div>
 		<div id="buzzer-container">
 			<button id="buzzer">
@@ -69,13 +70,13 @@
 				});
 			});
 			socket.on("scores", (scores) => {
-				console.log(`Got scores: A: ${scores.aScore} and B: ${scores.bScore}`);
 				$("#a-score").text(scores.aScore);
 				$("#b-score").text(scores.bScore);
+				$("#question").text(scores.question);
 			});
 			socket.on("disconnect", () => {
-				console.log("Disconnected!");
 				$("button").off("click");
+				alert("You've been disconnected. Reload the page.")
 			});
 		}
 	</script>

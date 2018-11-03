@@ -16,7 +16,7 @@
   "author": "Vishal Devireddy",
   "license": "MIT",
   "devDependencies": {
-    "electron": "2.0.8"
+    "electron": "3.0.4"
   },
   "dependencies": {
     "electron-reload": "^1.2.5",

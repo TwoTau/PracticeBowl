@@ -175,6 +175,7 @@ button {
 }
 #stop-reading-button {
     display: none;
+    margin-top: 80px;
 }
 
 #judging {
@@ -339,6 +340,17 @@ body {
     width: 16px;
     height: 16px;
     vertical-align: text-bottom;
+}
+#info-bar {
+    font-size: 14px;
+    color: #888;
+    margin-left: 40px;
+}
+#info-bar > span {
+    margin: 0 10px;
+}
+#ip-address, #total-players, #listening-for {
+    color: #bbb;
 }
 #window-buttons {
     position: fixed;
