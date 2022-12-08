@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "electron-reload": "^1.2.5",
-    "express": "^4.16.3",
+    "express": "^4.17.3",
     "jquery": "^3.3.1",
     "socket.io": "^2.1.1"
   }
